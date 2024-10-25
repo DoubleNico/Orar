@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>Color mode: {{ $colorMode.value }}</h1>
-    <button @click="changeMode">{{ $colorMode.value }}</button>
+    <h1>Color mode: {{ colorModeText }}</h1>
+    <button @click="changeMode">{{ colorModeText }}</button>
     <a
       v-for="lang in availableLocales"
       :key="lang.code"
@@ -10,6 +10,9 @@
       >{{ lang.name }}</a
     >
     <p>{{ $t('hello') }}</p>
+    <StructureButton />
+
+    <DynamicTable />
   </div>
 </template>
 
@@ -20,25 +23,27 @@ const availableLocales = computed(() => {
 })
 
 const colorMode = useColorMode()
+const colorModeText = ref('')
+
+const updateColorModeText = () => {
+  if (colorMode.value === 'light') colorModeText.value = 'light'
+  else if (colorMode.value === 'dark') colorModeText.value = 'dark'
+  else colorModeText.value = 'contrast'
+}
 
 const changeMode = () => {
   if (colorMode.value === 'light') colorMode.value = 'dark'
   else if (colorMode.value === 'dark') colorMode.value = 'contrast'
   else colorMode.value = 'light'
   colorMode.preference = colorMode.value
+  updateColorModeText()
 }
+
+onMounted(() => {
+  updateColorModeText()
+})
 </script>
 
 <style>
-.dark-mode {
-  @apply text-white bg-background-dark;
-}
-
-.light-mode {
-  @apply text-black bg-background-light;
-}
-
-.contrast-mode {
-  @apply text-white bg-background-contrast;
-}
+@import 'assets/css/theme.css';
 </style>
