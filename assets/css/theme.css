@@ -1,0 +1,191 @@
+.background-modal {
+  background-color: var(--background-modal);
+}
+
+.background-table {
+  background-color: var(--background-table);
+}
+
+.background-table-hover:hover {
+  background-color: var(--background-table-hover);
+}
+
+.border-table {
+  border-color: var(--border-table);
+}
+
+.text-modal {
+  color: var(--text-modal);
+}
+
+.text-input-modal {
+  color: var(--text-input-modal);
+}
+
+.border-input-modal {
+  border-color: var(--border-input-modal);
+}
+
+.border-input-modal-focus {
+  outline-color: var(--border-input-modal-focus);
+}
+
+.color-button {
+  background-color: var(--color-button);
+}
+
+.color-button:hover {
+  background-color: var(--color-button-hover);
+}
+
+.text-addColumn,
+.text-addRow {
+  color: var(--text-addColumn);
+}
+
+.structure-button {
+  background-color: var(--structure-button);
+}
+
+.structure-button:hover {
+  background-color: var(--structure-button-hover);
+}
+
+.modal-button {
+  background-color: var(--modal-button);
+}
+
+.modal-button:hover {
+  background-color: var(--modal-button-hover);
+}
+
+.modal-button-invalid {
+  background-color: var(--modal-button-invalid);
+}
+
+.modal-button-invalid:hover {
+  background-color: var(--modal-button-invalid-hover);
+}
+
+.text-removeColumn {
+  color: var(--text-removeColumn);
+}
+
+.text-removeRow {
+  color: var(--text-removeRow);
+}
+
+.background-removeColumn {
+  background-color: var(--background-removeColumn);
+}
+
+.background-removeColumn-hover:hover {
+  background-color: var(--background-removeColumn-hover);
+}
+
+.background-removeRow {
+  background-color: var(--background-removeRow);
+}
+
+.background-removeRow-hover:hover {
+  background-color: var(--background-removeRow-hover);
+}
+
+.background-deleteCell {
+  background-color: var(--background-deleteCell);
+}
+
+.outline-invalid {
+  outline-color: var(--outline-invalid);
+}
+
+.outline-valid {
+  outline-color: var(--outline-valid);
+}
+
+.border-invalid {
+  border-color: var(--border-invalid);
+}
+
+.cellinformation-textarea-text-color {
+  color: var(--cellinformation-textarea-text-color);
+}
+
+.cellinformation-textarea-background-color {
+  background-color: var(--cellinformation-textarea-background-color);
+}
+
+.cellinformation-textarea-border-color {
+  border-color: var(--cellinformation-textarea-border-color);
+}
+
+.cellinformation-textarea-border-focus-color:focus {
+  border-color: var(--cellinformation-textarea-border-focus-color);
+}
+
+.cellinformation-textarea-border-outline-color {
+  outline-color: var(--cellinformation-textarea-border-outline-color);
+}
+
+.cellinformation-textarea-border-ring-color {
+  --tw-ring-color: var(--cellinformation-textarea-border-ring-color);
+}
+
+.cellinformation-textarea-invalid-text-color {
+  color: var(--cellinformation-textarea-invalid-text-color);
+}
+
+.cellinformation-textarea-invalid-background-color {
+  background-color: var(--cellinformation-textarea-invalid-background-color);
+}
+
+.cellinformation-textarea-invalid-background-hover-color:hover {
+  background-color: var(--cellinformation-textarea-invalid-background-hover-color);
+}
+
+.cellinformation-settings-backgroud-color {
+  background-color: var(--cellinformation-settings-backgroud-color);
+}
+
+.cellinformation-settings-backgroud-color-hover:hover {
+  background-color: var(--cellinformation-settings-backgroud-color-hover);
+}
+
+.cellinformation-settings-invalid-backgroud-color {
+  background-color: var(--cellinformation-settings-invalid-backgroud-color);
+}
+
+.cellinformation-settings-invalid-backgroud-color-hover:hover {
+  background-color: var(--cellinformation-settings-invalid-backgroud-color-hover);
+}
+
+.settings-label-color {
+  color: var(--settings-label-color);
+}
+
+.settings-ring-color:focus {
+  --tw-ring-color: var(--settings-ring-color);
+}
+.settings-section-background-color {
+  background-color: var(--settings-section-background-color);
+}
+
+.settings-section-border-color {
+  border-color: var(--settings-section-border-color);
+}
+
+.settings-outline-color {
+  outline-color: var(--settings-section-border-color);
+}
+
+.settings-accent-color {
+  accent-color: var(--settings-accent-color);
+}
+
+.settings-invalid-button-color {
+  border-color: var(--settings-invalid-button-color);
+}
+
+.settings-invalid-text-color {
+  color: var(--settings-invalid-text-color);
+}
