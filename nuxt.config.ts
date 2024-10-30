@@ -64,4 +64,11 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: '2024-10-05',
+  runtimeConfig: {
+    public: {
+      backend: process.env.BACKEND,
+      api_link: process.env.API_LINK,
+      schedule_link: process.env.SCHEDULE_LINK,
+    },
+  },
 })
