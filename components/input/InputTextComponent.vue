@@ -52,6 +52,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  restrictedChars: {
+    type: Array<string>,
+    default: () => null,
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'check'])
@@ -62,11 +66,11 @@ const inputValue = computed({
 })
 
 const hasRestrictedChars = ref(false)
+const restrictedChars = ref(props.restrictedChars)
 
 function check() {
-  if (inputValue.value.length < 2) {
-    const restrictedChars = ['d', '1', '0', '+']
-    hasRestrictedChars.value = restrictedChars.some((char) =>
+  if (inputValue.value.length < 2 && restrictedChars.value !== null) {
+    hasRestrictedChars.value = restrictedChars.value.some((char) =>
       inputValue.value.includes(char),
     )
   } else {

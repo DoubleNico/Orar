@@ -1,25 +1,30 @@
 <template>
   <div>
+    <NuxtLoadingIndicator />
     <h1>Schedule Details</h1>
     <p>ID: {{ id }}</p>
-    <p>Name: {{ schedule.name }}</p>
-    <p>Rows: {{ schedule.rows }}</p>
-    <p>Columns: {{ schedule.columns }}</p>
+    <p v-if="schedule && !error">Name: {{ schedule.name }}</p>
+    <p v-if="schedule && !error">Rows: {{ schedule.rows }}</p>
+    <p v-if="schedule && !error">Columns: {{ schedule.columns }}</p>
+    <DynamicTable
+      v-if="schedule && !error"
+      :schedule-id="id"
+      :initial-row="schedule.rows"
+      :initial-column="schedule.columns"
+    />
+    <p v-if="error">{{ error.message }}</p>
+    <p v-else-if="!schedule">Loading...</p>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import DynamicTable from '~/components/DynamicTable.vue'
 
 const route = useRoute()
-const id = computed(() => route.params.id)
+const config = useRuntimeConfig()
+const id = computed(() => route.params.id as string)
 
-// Fetch the schedule data from localStorage using the ID
-const schedule = computed(() => {
-  const scheduleData = localStorage.getItem(`schedule-${id.value}`)
-  return scheduleData
-    ? JSON.parse(scheduleData)
-    : { name: '', rows: 0, columns: 0 }
-})
+const { data: schedule, error } = await useFetch(
+  `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/${id.value}`,
+)
 </script>

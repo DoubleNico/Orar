@@ -48,6 +48,7 @@ import { nanoid } from 'nanoid'
 import NumberInputComponent from './input/NumberInputComponent.vue'
 
 const rows = ref(1)
+const config = useRuntimeConfig()
 const columns = ref(1)
 const showModal = ref(false)
 const scheduleName = ref('')
@@ -72,29 +73,32 @@ const inputValuesValid = computed(
     scheduleName.value.length > 0,
 )
 
-// Use the Vue Router
 const router = useRouter()
 
-// Handle the "Done" button action
-function handleDone() {
+async function handleDone() {
   if (inputValuesValid.value) {
-    // Generate a new UUID
     const id = nanoid(15)
-    // Prepare schedule data
-    const scheduleData = {
-      id,
-      name: scheduleName.value,
-      rows: rows.value,
-      columns: columns.value,
+    try {
+      await $fetch(
+        `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id,
+            name: scheduleName.value,
+            rows: rows.value,
+            columns: columns.value,
+          }),
+        },
+      )
+
+      router.push(`/tables/${id}`)
+    } catch (error) {
+      throw new Error('Failed to create schedule')
     }
-
-    // Option 1: Store the scheduleData in localStorage (temporary storage)
-    localStorage.setItem(`schedule-${id}`, JSON.stringify(scheduleData))
-
-    // Option 2: Use a state management solution like Vuex or Pinia (if needed)
-
-    // Navigate to /tables/[id] with the new UUID
-    router.push(`/tables/${id}`)
   }
 }
 function handleClose() {

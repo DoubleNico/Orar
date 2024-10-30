@@ -1,4 +1,3 @@
-<!-- TODO: Border and stripped colums/row -->
 <template>
   <div class="table-container flex items-center justify-center">
     <table class="border-collapse table-fixed shadow-lg mt-10">
@@ -13,7 +12,7 @@
               :tabindex="isModalOpen ? -1 : 0 || isSettingsModalOpen ? -1 : 0"
               class="add-button font-bold cursor-pointer text-removeColumn background-removeColumn background-removeColumn-hover text-4xl w-32 h-12"
               :title="`Remove column number ${colIndex + 1}`"
-              @click.stop="removeColumn(colIndex)"
+              @click.stop="removeColumn(colIndex, scheduleId, config)"
             >
               &#10005;
             </button>
@@ -78,14 +77,14 @@
               v-if="rowIndex === 0 && colIndex === row.length - 1"
               class="add-button font-bold cursor-pointer flex items-center justify-center text-addColumn text-4xl"
               title="Click to add Column"
-              @click.stop="addColumn"
+              @click.stop="addColumn(scheduleId, config)"
               >+</span
             >
             <span
               v-if="rowIndex === rows.length - 1 && colIndex === 0"
               class="add-button font-bold cursor-pointer flex items-center justify-center text-addRow text-4xl"
               title="Click to add Row"
-              @click.stop="addRow"
+              @click.stop="addRow(scheduleId, config)"
               >+</span
             >
           </td>
@@ -95,7 +94,7 @@
               class="font-bold cursor-pointer flex items-center justify-center text-removeRow background-removeRow background-removeRow-hover text-4xl w-full h-full"
               :tabindex="isModalOpen ? -1 : 0 || isSettingsModalOpen ? -1 : 0"
               :title="`Remove row number ${rowIndex + 1}`"
-              @click.stop="removeRow(rowIndex)"
+              @click.stop="removeRow(rowIndex, scheduleId, config)"
             >
               &#10005;
             </button>
@@ -157,8 +156,17 @@ import {
   removeRow,
   removeColumn,
   openModal,
+  createRows,
   deleteCell,
   deleteCellContent,
   updateCellContent,
 } from '~/scripts/cellOperations'
+const props = defineProps<{
+  scheduleId: string
+  initialColumn: number
+  initialRow: number
+}>()
+const config = useRuntimeConfig()
+
+createRows(props.initialRow, props.initialColumn)
 </script>

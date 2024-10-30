@@ -1,11 +1,13 @@
-import { ref, reactive, computed } from 'vue'
-import type { CellSettings } from '~/scripts/cellSettings'
+import type { RuntimeConfig } from 'nuxt/schema'
+import { addColumnsToDatabase } from './backend/columnsOperations'
+import { addRowsToDatabase } from './backend/rowsOperations'
 import {
   isModalOpen,
   isSettingsModalOpen,
   openSettings,
   closeSettingsModal,
 } from '~/scripts/modalState'
+import type { CellSettings } from '~/scripts/cellSettings'
 
 const rows = reactive([
   ['1', '+'],
@@ -14,6 +16,8 @@ const rows = reactive([
 
 const modalColumn = ref(0)
 const modalRow = ref(0)
+const columnsCount = ref(0)
+const rowsCount = ref(1)
 const cellName = ref('')
 const selectedColor = ref('#000000')
 const cellAlignment = ref<'center' | 'left' | 'right'>('center')
@@ -27,7 +31,7 @@ const filteredRows = computed(() => {
   return rows.map((row) => row.filter((cell) => cell !== '0'))
 })
 
-function addColumn() {
+async function addColumn(scheduleId: string, config: RuntimeConfig) {
   rows.forEach((row, rowIndex) => {
     if (rowIndex === 0) {
       row.splice(row.length - 1, 0, '1')
@@ -37,10 +41,12 @@ function addColumn() {
       row.splice(row.length - 1, 0, '0')
     }
   })
+  columnsCount.value++
   validateTable()
+  await addColumnsToDatabase(scheduleId, columnsCount.value, config)
 }
 
-function addRow() {
+async function addRow(scheduleId: string, config: RuntimeConfig) {
   if (rows.length > 0) {
     rows[rows.length - 1][0] = '1'
   }
@@ -50,7 +56,9 @@ function addRow() {
   newRow[0] = '+'
   newRow[numberOfColumns - 1] = '0'
   rows.push(newRow)
+  rowsCount.value++
   validateTable()
+  await addRowsToDatabase(scheduleId, rowsCount.value, config)
 }
 
 function cleanTable() {
@@ -100,7 +108,11 @@ function saveSettings(settings: CellSettings) {
   isModalOpen.value = true
 }
 
-function removeRow(rowIndex: number) {
+async function removeRow(
+  rowIndex: number,
+  scheduleId: string,
+  config: RuntimeConfig,
+) {
   if (rows.length > 2) {
     rows.splice(rowIndex, 1)
 
@@ -120,10 +132,16 @@ function removeRow(rowIndex: number) {
     })
 
     validateTable()
+    rowsCount.value--
+    await addRowsToDatabase(scheduleId, rowsCount.value, config)
   }
 }
 
-function removeColumn(colIndex: number) {
+async function removeColumn(
+  colIndex: number,
+  scheduleId: string,
+  config: RuntimeConfig,
+) {
   if (rows[0].length > 2) {
     rows.forEach((row) => row.splice(colIndex, 1))
 
@@ -143,6 +161,8 @@ function removeColumn(colIndex: number) {
     })
 
     validateTable()
+    columnsCount.value--
+    await addColumnsToDatabase(scheduleId, columnsCount.value, config)
   }
 }
 function openModal(rowIndex: number, colIndex: number) {
@@ -198,6 +218,35 @@ function deleteCellContent() {
 function updateCellContent(newContent: string) {
   rows[modalRow.value][modalColumn.value] = newContent || '1'
 }
+
+function createRows(initialRows: number, initialColumns: number) {
+  if (initialRows < 2 && initialColumns < 2) {
+    rows.length = 0
+    rows.push(['1', '+'])
+    rows.push(['+', '0'])
+    return
+  }
+
+  rows.length = 0
+  rowsCount.value = initialRows
+  columnsCount.value = initialColumns
+  for (let rowIndex = 0; rowIndex < initialRows + 1; rowIndex++) {
+    const newRow = Array(initialColumns + 1).fill('1')
+
+    if (rowIndex === 0) {
+      newRow[initialColumns] = '+'
+    } else if (rowIndex === initialRows) {
+      newRow[0] = '+'
+    } else {
+      newRow[initialColumns] = '0'
+    }
+
+    rows.push(newRow)
+  }
+
+  validateTable()
+}
+
 export {
   rows,
   isModalOpen,
@@ -212,6 +261,7 @@ export {
   fontColor,
   filteredRows,
   cellAlignments,
+  createRows,
   addColumn,
   addRow,
   cleanTable,
