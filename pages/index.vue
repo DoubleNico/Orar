@@ -11,8 +11,6 @@
     >
     <p>{{ $t('hello') }}</p>
     <StructureButton />
-
-    <DynamicTable />
   </div>
 </template>
 
