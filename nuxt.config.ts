@@ -8,39 +8,34 @@ export default defineNuxtConfig({
         fallback: 'light', // fallback value if not system preference found
       },
     ],
-    [
-      '@nuxtjs/i18n',
-      {
-        locales: [
-          {
-            name: 'Română',
-            code: 'ro',
-            language: 'ro-RO',
-            file: 'ro-RO.json',
-          },
-          {
-            name: 'English',
-            code: 'en',
-            language: 'en-US',
-            file: 'en-US.json',
-          },
-        ],
-        langDir: 'lang/',
-        defaultLocale: 'en',
-        detectBrowserLanguage: {
-          useCookie: true,
-          alwaysRedirect: true,
-          cookieKey: 'i18n_redirected',
-          redirectOn: 'root',
-        },
-      },
-    ],
+    '@nuxtjs/i18n',
   ],
 
   css: ['~/assets/css/tailwind.css'],
 
   typescript: {
     shim: false,
+  },
+
+  i18n: {
+    vueI18n: './nuxt-i18n.ts',
+    locales: [
+      {
+        code: 'en',
+        name: 'English',
+      },
+      {
+        code: 'ro',
+        name: 'Romanian',
+      },
+    ],
+    lazy: true,
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root',
+    },
+    defaultLocale: 'en',
   },
 
   app: {
