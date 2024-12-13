@@ -1,4 +1,5 @@
 export interface CellSettings {
+  id: string
   color: string
   alignment: 'left' | 'center' | 'right'
   wrapText:
