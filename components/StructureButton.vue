@@ -93,9 +93,9 @@ async function handleDone() {
             columns: columns.value,
           }),
         },
-      )
-
-      router.push(`/tables/${id}`)
+      ).then(() => {
+        router.push(`/tables/${id}`)
+      })
     } catch (error) {
       throw new Error('Failed to create schedule')
     }
