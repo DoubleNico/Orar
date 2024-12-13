@@ -45,7 +45,10 @@
         Font Size:
       </label>
     </div>
-    <FontInputComponent v-model="fontSize" :font-size="fontSize" />
+    <FontInputComponent
+      v-model="fontSize"
+      @update:font-size-valid="fontSizeValid = $event"
+    />
 
     <!-- Font Color Section -->
     <div class="mb-3">
@@ -61,6 +64,7 @@
 </template>
 
 <script lang="ts" setup>
+import type { RuntimeConfig } from 'nuxt/schema'
 import { ref, watch } from 'vue'
 import RadioInputComponent from '../input/RadioInputComponent.vue'
 import OptionInputComponent from '../input/OptionInputComponent.vue'
@@ -73,6 +77,8 @@ const props = defineProps<{
   modelValue: boolean
   initialSettings: CellSettings
   initialCellName: string
+  scheduleId: string
+  config: RuntimeConfig
 }>()
 
 const emit = defineEmits(['update:modelValue', 'done', 'goback', 'save'])
@@ -103,13 +109,19 @@ watch(
 
 function saveSettings() {
   fontSizeValid.value = true
-  emit('save', {
-    color: selectedBackgroundColor.value,
-    alignment: cellAlignment.value,
-    wrapText: wrapText.value,
-    fontSize: fontSize.value,
-    fontColor: selectedFontColor.value,
-  })
+  emit(
+    'save',
+    {
+      id: props.initialSettings.id,
+      color: selectedBackgroundColor.value,
+      alignment: cellAlignment.value,
+      wrapText: wrapText.value,
+      fontSize: fontSize.value,
+      fontColor: selectedFontColor.value,
+    },
+    props.scheduleId,
+    props.config,
+  )
   emit('update:modelValue', false)
 }
 
