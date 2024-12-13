@@ -1,6 +1,15 @@
 import type { RuntimeConfig } from 'nuxt/schema'
 import { addColumnsToDatabase } from './backend/columnsOperations'
 import { addRowsToDatabase } from './backend/rowsOperations'
+import type { Course } from './backend/types/Course'
+import {
+  removeCourse,
+  removeSettings,
+  saveCourseToDatabase,
+  saveSettingsToDatabase,
+  updateCourseColumn,
+  updateCourseRow,
+} from './backend/courseOperations'
 import {
   isModalOpen,
   isSettingsModalOpen,
@@ -27,38 +36,49 @@ const wrapText = ref<
 const fontSize = ref(16)
 const fontColor = ref('#000000')
 
+const cellAlignments = reactive(new Map<string, CellSettings>())
+const coursesList = reactive(new Map<string, Course>())
+
 const filteredRows = computed(() => {
   return rows.map((row) => row.filter((cell) => cell !== '0'))
 })
 
 async function addColumn(scheduleId: string, config: RuntimeConfig) {
-  rows.forEach((row, rowIndex) => {
-    if (rowIndex === 0) {
-      row.splice(row.length - 1, 0, '1')
-    } else if (rowIndex < rows.length) {
-      row.splice(row.length - 1, 0, '1')
-    } else {
-      row.splice(row.length - 1, 0, '0')
-    }
+  await addColumnsToDatabase(
+    scheduleId,
+    columnsCount.value + 1,
+    config,
+  ).finally(() => {
+    rows.forEach((row, rowIndex) => {
+      if (rowIndex === 0) {
+        row.splice(row.length - 1, 0, '1')
+      } else if (rowIndex < rows.length) {
+        row.splice(row.length - 1, 0, '1')
+      } else {
+        row.splice(row.length - 1, 0, '0')
+      }
+    })
+    columnsCount.value++
+    validateTable()
   })
-  columnsCount.value++
-  validateTable()
-  await addColumnsToDatabase(scheduleId, columnsCount.value, config)
 }
 
 async function addRow(scheduleId: string, config: RuntimeConfig) {
-  if (rows.length > 0) {
-    rows[rows.length - 1][0] = '1'
-  }
+  await addRowsToDatabase(scheduleId, rowsCount.value + 1, config).finally(
+    () => {
+      if (rows.length > 0) {
+        rows[rows.length - 1][0] = '1'
+      }
 
-  const numberOfColumns = rows[0].length
-  const newRow = new Array(numberOfColumns).fill('1')
-  newRow[0] = '+'
-  newRow[numberOfColumns - 1] = '0'
-  rows.push(newRow)
-  rowsCount.value++
-  validateTable()
-  await addRowsToDatabase(scheduleId, rowsCount.value, config)
+      const numberOfColumns = rows[0].length
+      const newRow = new Array(numberOfColumns).fill('1')
+      newRow[0] = '+'
+      newRow[numberOfColumns - 1] = '0'
+      rows.push(newRow)
+      rowsCount.value++
+      validateTable()
+    },
+  )
 }
 
 function cleanTable() {
@@ -91,21 +111,36 @@ function validateTable() {
   cleanTable()
 }
 
-function addCell(rowIndex: number, colIndex: number) {
-  rows[rowIndex][colIndex] = '1'
-  isModalOpen.value = false
+async function addCell(
+  scheduleId: string,
+  config: RuntimeConfig,
+  rowIndex: number,
+  colIndex: number,
+) {
+  await removeCourse(
+    scheduleId,
+    coursesList.get(`${rowIndex}-${colIndex}`)?.id || '',
+    config,
+  ).finally(() => {
+    rows[rowIndex][colIndex] = '1'
+    isModalOpen.value = false
+  })
 }
 
-const cellAlignments = reactive(new Map<string, CellSettings>())
-
-function saveSettings(settings: CellSettings) {
-  cellAlignments.set(`${modalRow.value}-${modalColumn.value}`, settings)
-  selectedColor.value = settings.color
-  cellAlignment.value = settings.alignment
-  wrapText.value = settings.wrapText
-  fontSize.value = settings.fontSize
-  isSettingsModalOpen.value = false
-  isModalOpen.value = true
+async function saveSettings(
+  settings: CellSettings,
+  scheduleId: string,
+  config: RuntimeConfig,
+) {
+  await saveSettingsToDatabase(settings, scheduleId, config).finally(() => {
+    cellAlignments.set(`${modalRow.value}-${modalColumn.value}`, settings)
+    selectedColor.value = settings.color
+    cellAlignment.value = settings.alignment
+    wrapText.value = settings.wrapText
+    fontSize.value = settings.fontSize
+    isSettingsModalOpen.value = false
+    isModalOpen.value = true
+  })
 }
 
 async function removeRow(
@@ -113,28 +148,67 @@ async function removeRow(
   scheduleId: string,
   config: RuntimeConfig,
 ) {
-  if (rows.length > 2) {
-    rows.splice(rowIndex, 1)
+  if (rows.length <= 2) return
 
-    const newCellAlignments = new Map<string, CellSettings>()
-    cellAlignments.forEach((value, key) => {
-      const [rIndex, cIndex] = key.split('-').map(Number)
-      if (rIndex < rowIndex) {
-        newCellAlignments.set(key, value)
-      } else if (rIndex > rowIndex) {
-        const newKey = `${rIndex - 1}-${cIndex}`
-        newCellAlignments.set(newKey, value)
-      }
-    })
-    cellAlignments.clear()
-    newCellAlignments.forEach((value, key) => {
-      cellAlignments.set(key, value)
-    })
-
-    validateTable()
-    rowsCount.value--
-    await addRowsToDatabase(scheduleId, rowsCount.value, config)
+  for (const [key, course] of coursesList.entries()) {
+    const [rIndex] = key.split('-').map(Number)
+    if (rIndex === rowIndex) {
+      await removeCourse(scheduleId, course.id, config).finally(() => {
+        coursesList.delete(key)
+      })
+    }
   }
+
+  for (const [key, settings] of cellAlignments.entries()) {
+    const [rIndex] = key.split('-').map(Number)
+    if (rIndex === rowIndex) {
+      await removeSettings(scheduleId, settings.id, config).finally(() => {
+        cellAlignments.delete(key)
+      })
+    }
+  }
+
+  const newCoursesList = new Map<string, Course>()
+  const newCellAlignments = new Map<string, CellSettings>()
+
+  for (const [key, course] of coursesList.entries()) {
+    const [rIndex, cIndex] = key.split('-').map(Number)
+    if (rIndex > rowIndex) {
+      // Adjust key to move course up
+      await updateCourseRow(scheduleId, course.id, rIndex - 1, config).finally(
+        () => {
+          const newKey = `${rIndex - 1}-${cIndex}`
+          newCoursesList.set(newKey, course)
+        },
+      )
+    } else {
+      newCoursesList.set(key, course)
+    }
+  }
+
+  cellAlignments.forEach((settings, key) => {
+    const [rIndex, cIndex] = key.split('-').map(Number)
+    if (rIndex > rowIndex) {
+      // Adjust key to move setting up
+      const newKey = `${rIndex - 1}-${cIndex}`
+      newCellAlignments.set(newKey, settings)
+    } else {
+      newCellAlignments.set(key, settings)
+    }
+  })
+
+  rows.splice(rowIndex, 1)
+  coursesList.clear()
+  cellAlignments.clear()
+  newCoursesList.forEach((course, key) => coursesList.set(key, course))
+  newCellAlignments.forEach((settings, key) =>
+    cellAlignments.set(key, settings),
+  )
+
+  await addRowsToDatabase(scheduleId, rowsCount.value--, config).finally(() => {
+    rowsCount.value--
+    validateTable()
+  })
 }
 
 async function removeColumn(
@@ -142,29 +216,78 @@ async function removeColumn(
   scheduleId: string,
   config: RuntimeConfig,
 ) {
-  if (rows[0].length > 2) {
-    rows.forEach((row) => row.splice(colIndex, 1))
+  if (rows[0].length <= 2) return
 
-    const newCellAlignments = new Map<string, CellSettings>()
-    cellAlignments.forEach((value, key) => {
-      const [rIndex, cIndex] = key.split('-').map(Number)
-      if (cIndex < colIndex) {
-        newCellAlignments.set(key, value)
-      } else if (cIndex > colIndex) {
-        const newKey = `${rIndex}-${cIndex - 1}`
-        newCellAlignments.set(newKey, value)
-      }
-    })
-    cellAlignments.clear()
-    newCellAlignments.forEach((value, key) => {
-      cellAlignments.set(key, value)
-    })
-
-    validateTable()
-    columnsCount.value--
-    await addColumnsToDatabase(scheduleId, columnsCount.value, config)
+  for (const [key, course] of coursesList.entries()) {
+    const [, cIndex] = key.split('-').map(Number)
+    if (cIndex === colIndex) {
+      // Remove the course from database and list
+      await removeCourse(scheduleId, course.id, config).finally(() => {
+        coursesList.delete(key)
+      })
+    }
   }
+
+  for (const [key, settings] of cellAlignments.entries()) {
+    const [, cIndex] = key.split('-').map(Number)
+    if (cIndex === colIndex) {
+      // Remove the settings from database and map
+      await removeSettings(scheduleId, settings.id, config).finally(() => {
+        cellAlignments.delete(key)
+      })
+    }
+  }
+
+  const newCoursesList = new Map<string, Course>()
+  const newCellAlignments = new Map<string, CellSettings>()
+
+  for (const [key, course] of coursesList.entries()) {
+    const [rIndex, cIndex] = key.split('-').map(Number)
+    if (cIndex > colIndex) {
+      // Adjust key to move course left
+
+      // Optionally update course's column in the database if necessary
+      await updateCourseColumn(
+        scheduleId,
+        course.id,
+        cIndex - 1,
+        config,
+      ).finally(() => {
+        const newKey = `${rIndex}-${cIndex - 1}`
+        newCoursesList.set(newKey, course)
+      })
+    } else {
+      newCoursesList.set(key, course)
+    }
+  }
+
+  for (const [key, settings] of cellAlignments.entries()) {
+    const [rIndex, cIndex] = key.split('-').map(Number)
+    if (cIndex > colIndex) {
+      // Adjust key to move setting left
+      const newKey = `${rIndex}-${cIndex - 1}`
+      newCellAlignments.set(newKey, settings)
+    } else {
+      newCellAlignments.set(key, settings)
+    }
+  }
+
+  rows.forEach((row) => row.splice(colIndex, 1))
+  coursesList.clear()
+  cellAlignments.clear()
+  newCoursesList.forEach((course, key) => coursesList.set(key, course))
+  newCellAlignments.forEach((settings, key) =>
+    cellAlignments.set(key, settings),
+  )
+
+  await addColumnsToDatabase(scheduleId, --columnsCount.value, config).finally(
+    () => {
+      --columnsCount.value
+      validateTable()
+    },
+  )
 }
+
 function openModal(rowIndex: number, colIndex: number) {
   if (
     rows[rowIndex][colIndex] === '0' ||
@@ -199,13 +322,27 @@ function openModal(rowIndex: number, colIndex: number) {
   modalColumn.value = colIndex
 }
 
-function deleteCell() {
+async function deleteCell(scheduleId: string, config: RuntimeConfig) {
   if (rows.length > 2 && rows[modalRow.value].length > 2) {
-    rows[modalRow.value][modalColumn.value] = 'd'
-    const key = `${modalRow.value}-${modalColumn.value}`
-    cellAlignments.delete(key)
-    cellName.value = ''
-    isModalOpen.value = false
+    await removeCourse(
+      scheduleId,
+      coursesList.get(`${modalRow.value}-${modalColumn.value}`)?.id || '',
+      config,
+    ).finally(() => {
+      rows[modalRow.value][modalColumn.value] = 'd'
+      const key = `${modalRow.value}-${modalColumn.value}`
+      cellAlignments.delete(key)
+      cellName.value = ''
+      isModalOpen.value = false
+      saveCourseToDatabase(
+        scheduleId,
+        'd',
+        modalRow.value,
+        modalColumn.value,
+        '',
+        config,
+      )
+    })
   }
 }
 
@@ -215,8 +352,20 @@ function deleteCellContent() {
   isModalOpen.value = false
 }
 
-function updateCellContent(newContent: string) {
+async function updateCellContent(
+  newContent: string,
+  scheduleId: string,
+  config: RuntimeConfig,
+) {
   rows[modalRow.value][modalColumn.value] = newContent || '1'
+  await saveCourseToDatabase(
+    scheduleId,
+    newContent,
+    modalRow.value,
+    modalColumn.value,
+    cellAlignments.get(`${modalRow.value}-${modalColumn.value}`)?.id || '',
+    config,
+  )
 }
 
 function createRows(initialRows: number, initialColumns: number) {
@@ -247,6 +396,16 @@ function createRows(initialRows: number, initialColumns: number) {
   validateTable()
 }
 
+function createCourses(courses: Course[]) {
+  for (const course of courses) {
+    const row = course.row
+    const column = course.column
+    coursesList.set(`${row}-${column}`, course)
+    const cell = rows[row][column]
+    if (cell === '1') rows[row][column] = course.title
+    if (course.settings) cellAlignments.set(`${row}-${column}`, course.settings)
+  }
+}
 export {
   rows,
   isModalOpen,
@@ -261,6 +420,7 @@ export {
   fontColor,
   filteredRows,
   cellAlignments,
+  createCourses,
   createRows,
   addColumn,
   addRow,
