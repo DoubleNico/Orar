@@ -69,6 +69,7 @@
 </template>
 
 <script lang="ts" setup>
+import type { RuntimeConfig } from 'nuxt/schema'
 import { ref, watch } from 'vue'
 import ModalBase from './ModalBase.vue'
 
@@ -92,6 +93,14 @@ const props = defineProps({
   initialCellName: {
     type: String,
     default: '',
+  },
+  scheduleId: {
+    type: String,
+    required: true,
+  },
+  config: {
+    type: Object as () => RuntimeConfig,
+    required: true,
   },
 })
 
@@ -131,7 +140,7 @@ function validateInput() {
 
 function done() {
   if (!hasRestrictedChars.value) {
-    emit('saveCellContent', cellName.value)
+    emit('saveCellContent', cellName.value, props.scheduleId, props.config)
     isVisible.value = false
     emit('update:modelValue', false)
   }
@@ -151,14 +160,14 @@ function deleteCellContent() {
 }
 
 function deleteCell() {
-  emit('deleteCell')
+  emit('deleteCell', props.scheduleId, props.config)
   cellName.value = ''
   hasRestrictedChars.value = false
   isVisible.value = false
 }
 
 function openSettings() {
-  emit('saveCellContent', cellName.value)
+  emit('saveCellContent', cellName.value, props.scheduleId, props.config)
   emit('openSettings', cellName.value)
 }
 </script>
