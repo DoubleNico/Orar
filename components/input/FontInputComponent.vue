@@ -61,16 +61,12 @@ const fontSizeOptions = [
 ]
 
 const props = defineProps<{
-  fontSize: number
+  modelValue: number
 }>()
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'update:fontSizeValid'])
 
-const fontSize = computed({
-  get: () => props.fontSize,
-  set: (value) => emit('update:modelValue', value),
-})
-
+const fontSize = ref(props.modelValue)
 const fontSizeValid = ref(true)
 const fontSizeValidInput = useTemplateRef('fontSizeValidInput')
 const fontSizeInvalidInput = useTemplateRef('fontSizeInvalidInput')
@@ -78,9 +74,11 @@ const fontSizeInvalidInput = useTemplateRef('fontSizeInvalidInput')
 function checkNumber() {
   if (fontSize.value < 8 || fontSize.value > 128) {
     fontSizeValid.value = false
+    emit('update:fontSizeValid', fontSizeValid.value)
     fontSizeInvalidInput.value?.focus()
   } else {
     fontSizeValid.value = true
+    emit('update:fontSizeValid', fontSizeValid.value)
     fontSizeValidInput.value?.focus()
   }
 }
