@@ -1,5 +1,10 @@
 <template>
-  <div class="table-container flex items-center justify-center">
+  <div v-if="loading" class="flex items-center justify-center">
+    <div
+      class="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"
+    ></div>
+  </div>
+  <div v-else class="table-container flex items-center justify-center">
     <table class="border-collapse table-fixed shadow-lg mt-10">
       <thead>
         <tr v-if="rows[0].length > 2">
@@ -69,7 +74,7 @@
               v-if="cell === 'd'"
               class="font-bold cursor-pointer flex items-center justify-center text-addColumn text-4xl"
               title="Click to add Cell"
-              @click.stop="addCell(rowIndex, colIndex)"
+              @click.stop="addCell(scheduleId, config, rowIndex, colIndex)"
               >+</span
             >
 
@@ -105,6 +110,8 @@
 
     <CellInformationModal
       v-model="isModalOpen"
+      :schedule-id="scheduleId"
+      :config="config"
       :row="modalRow"
       :column="modalColumn"
       :cell="rows[modalRow]?.[modalColumn]"
@@ -116,7 +123,10 @@
     />
     <SettingsModal
       v-model="isSettingsModalOpen"
+      :schedule-id="scheduleId"
+      :config="config"
       :initial-settings="{
+        id: `${uuidv4()}`,
         color: selectedColor,
         alignment: cellAlignment,
         wrapText: wrapText,
@@ -131,6 +141,7 @@
 </template>
 
 <script lang="ts" setup>
+import { v4 as uuidv4 } from 'uuid'
 import CellInformationModal from './modal/CellInformationModal.vue'
 import SettingsModal from './modal/SettingsModal.vue'
 import {
@@ -142,6 +153,7 @@ import {
   cellName,
   selectedColor,
   cellAlignment,
+  createCourses,
   wrapText,
   fontSize,
   fontColor,
@@ -161,12 +173,22 @@ import {
   deleteCellContent,
   updateCellContent,
 } from '~/scripts/cellOperations'
+import type { Course } from '~/scripts/backend/types/Course'
+
 const props = defineProps<{
+  modelValue: boolean
   scheduleId: string
   initialColumn: number
   initialRow: number
+  courses: Course[]
 }>()
 const config = useRuntimeConfig()
 
-createRows(props.initialRow, props.initialColumn)
+const loading = ref(true)
+
+onMounted(() => {
+  createRows(props.initialRow, props.initialColumn)
+  createCourses(props.courses)
+  loading.value = false
+})
 </script>
