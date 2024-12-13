@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 const { locale, locales, setLocale } = useI18n()
+
 const availableLocales = computed(() => {
   return locales.value.filter((i: { code: string }) => i.code !== locale.value)
 })
