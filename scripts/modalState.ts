@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import { cellName } from '~/scripts/cellOperations'
 
 const isModalOpen = ref(false)
