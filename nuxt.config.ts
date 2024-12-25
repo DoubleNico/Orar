@@ -59,6 +59,15 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: '2024-10-05',
+  nitro: {
+    storage: {
+      redis: {
+        driver: 'redis',
+        port: process.env.REDIS_PORT,
+        host: process.env.REDIS_HOST,
+      },
+    },
+  },
   runtimeConfig: {
     public: {
       backend: process.env.BACKEND,
