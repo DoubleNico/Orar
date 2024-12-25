@@ -11,10 +11,14 @@
     >
     <p>{{ $t('hello') }}</p>
     <StructureButton />
+    <LoginButton />
   </div>
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: 'auth',
+})
 const { locale, locales, setLocale } = useI18n()
 
 const availableLocales = computed(() => {
