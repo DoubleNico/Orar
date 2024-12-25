@@ -73,6 +73,21 @@ export default defineNuxtConfig({
       backend: process.env.BACKEND,
       api_link: process.env.API_LINK,
       schedule_link: process.env.SCHEDULE_LINK,
+      accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION,
+      refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION,
+      httpOnly: process.env.HTTP_ONLY === 'true',
+      isProduction: process.env.IS_PRODUCTION === 'true',
+      sameSite: process.env.SAME_SITE,
+      auth_path: process.env.AUTH_PATH,
+      domain: process.env.DOMAIN,
+    },
+    auth: {
+      accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
+      refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
+    },
+    redis: {
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT,
     },
   },
 })
