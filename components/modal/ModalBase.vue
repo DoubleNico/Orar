@@ -109,16 +109,16 @@ watchEffect(() => {
 })
 
 function closeModal() {
-  if (doneCondition.value) {
-    isVisible.value = false
-    emit('update:modelValue', false)
-    emit('close')
-  }
+  isVisible.value = false
+  emit('update:modelValue', false)
+  emit('close')
 }
 
 function done() {
-  emit('done')
-  closeModal()
+  if (doneCondition.value) {
+    emit('done')
+    closeModal()
+  }
 }
 
 function goBack() {
