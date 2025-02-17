@@ -18,4 +18,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
     })
     cookie.value = data.value.newAccessToken
   }
+  if (data.value.userId) {
+    const userStore = useUserStore()
+    userStore.setUserId(data.value.userId)
+  }
 })
