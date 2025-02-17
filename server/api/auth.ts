@@ -26,7 +26,6 @@ export default defineEventHandler(async (event) => {
   if (!userId) {
     return { success: false, message: 'Invalid credentials' }
   }
-  //http://localhost:3000/tables/TF5gV7xeINV3vBo
 
   const user = await getUser(config, userId)
   if (!user) {
