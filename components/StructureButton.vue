@@ -52,6 +52,7 @@ const config = useRuntimeConfig()
 const columns = ref(1)
 const showModal = ref(false)
 const scheduleName = ref('')
+const userStore = useUserStore()
 
 const rowsValid = ref(true)
 const scheduleNameValid = ref(true)
@@ -91,6 +92,7 @@ async function handleDone() {
             name: scheduleName.value,
             rows: rows.value,
             columns: columns.value,
+            creator: userStore.userId,
           }),
         },
       ).then(() => {
