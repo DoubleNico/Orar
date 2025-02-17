@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { AuthInit } from '~/scripts/auth/authInit'
 import { NuxtResponseAdapter } from '~/scripts/auth/responses/NuxtResponseAdapter'
-import { checkPassword } from '~/scripts/backend/usersOperations'
+import { checkPassword, getUser } from '~/scripts/backend/usersOperations'
 
 const userSchema = z.object({
   username: z.string(),
@@ -17,13 +17,20 @@ export default defineEventHandler(async (event) => {
   const authInit = new AuthInit()
   const config = useRuntimeConfig()
 
-  const user = await checkPassword(
+  const userId = await checkPassword(
     config,
     result.data.username,
     result.data.password,
   )
-  if (!user) {
+
+  if (!userId) {
     return { success: false, message: 'Invalid credentials' }
+  }
+  //http://localhost:3000/tables/TF5gV7xeINV3vBo
+
+  const user = await getUser(config, userId)
+  if (!user) {
+    return { success: false, message: 'User not found' }
   }
 
   try {

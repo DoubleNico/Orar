@@ -18,17 +18,33 @@ export async function createUser(
   return id
 }
 
+export async function getUser(
+  config: RuntimeConfig,
+  userId: string,
+): Promise<User | null> {
+  try {
+    const response = await $fetch<User>(
+      `${config.public.backend}/${config.public.api_link}/user/get`,
+      { method: 'GET', params: { userId } },
+    )
+    return response
+  } catch (error) {
+    console.error("Couldn't find user", error)
+    return null
+  }
+}
+
 export async function checkPassword(
   config: RuntimeConfig,
   username: string,
   password: string,
-): Promise<User | null> {
+): Promise<string | null> {
   try {
-    const response = await $fetch<User>(
-      `${config.public.backend}/${config.public.api_link}/user`,
-      { method: 'GET', body: { name: username, password } },
+    const response = await $fetch(
+      `${config.public.backend}/${config.public.api_link}/user/checkPassword`,
+      { method: 'POST', body: { name: username, password } },
     )
-    return response // return the user
+    return response
   } catch (error) {
     console.error("Couldn't find user", error)
     return null
