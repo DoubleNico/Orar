@@ -16,10 +16,9 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  middleware: 'auth',
-})
+definePageMeta({ middleware: 'auth' })
 const { locale, locales, setLocale } = useI18n()
+storeToRefs(useUserStore())
 
 const availableLocales = computed(() => {
   return locales.value.filter((i: { code: string }) => i.code !== locale.value)
