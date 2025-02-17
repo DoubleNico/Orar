@@ -29,7 +29,6 @@ export async function getUser(
     )
     return response
   } catch (error) {
-    console.error("Couldn't find user", error)
     return null
   }
 }
