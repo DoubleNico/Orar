@@ -3,10 +3,11 @@ import AuthMiddleware from '~/scripts/auth/authMiddleware'
 
 export default defineEventHandler(async (event) => {
   const authInit = new AuthInit()
+  const config = useRuntimeConfig()
   const authMiddleware = new AuthMiddleware(authInit.authUtils)
 
   try {
-    await authMiddleware.handle(event)
+    await authMiddleware.handle(event, config)
     return {
       success: true,
       userId: event.context.userId ?? null,
