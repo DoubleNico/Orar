@@ -10,6 +10,7 @@
       >{{ lang.name }}</a
     >
     <p>{{ $t('hello') }}</p>
+    <ScheduleList />
     <StructureButton />
     <LoginButton />
   </div>
