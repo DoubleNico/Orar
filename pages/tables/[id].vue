@@ -23,6 +23,10 @@ import DynamicTable from '~/components/DynamicTable.vue'
 import { getCourses } from '~/scripts/backend/courseOperations'
 import type { Course } from '~/scripts/backend/types/Course'
 
+definePageMeta({ middleware: 'auth' })
+
+storeToRefs(useUserStore())
+
 const route = useRoute()
 const config = useRuntimeConfig()
 const id = computed(() => route.params.id as string)
