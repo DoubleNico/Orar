@@ -12,7 +12,7 @@ export async function saveCourseToDatabase(
   config: RuntimeConfig,
 ) {
   const id = uuidv4()
-  const creatorId = '00000000-0000-0000-0000-000000000000'
+  const userStore = useUserStore()
   await $fetch(
     `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/${scheduleId}/course`,
     {
@@ -22,7 +22,7 @@ export async function saveCourseToDatabase(
         title: courseName,
         row,
         column,
-        creator: creatorId,
+        creator: userStore.userId,
         settings: settingsId,
         start: 1,
         end: 2,
