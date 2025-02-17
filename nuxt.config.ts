@@ -9,25 +9,18 @@ export default defineNuxtConfig({
       },
     ],
     '@nuxtjs/i18n',
+    '@pinia/nuxt',
   ],
 
   css: ['~/assets/css/tailwind.css'],
 
-  typescript: {
-    shim: false,
-  },
+  typescript: { shim: false },
 
   i18n: {
     vueI18n: './nuxt-i18n.ts',
     locales: [
-      {
-        code: 'en',
-        name: 'English',
-      },
-      {
-        code: 'ro',
-        name: 'Romanian',
-      },
+      { code: 'en', name: 'English' },
+      { code: 'ro', name: 'Romanian' },
     ],
     lazy: true,
     detectBrowserLanguage: {
@@ -85,9 +78,6 @@ export default defineNuxtConfig({
       accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
       refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
     },
-    redis: {
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT,
-    },
+    redis: { host: process.env.REDIS_HOST, port: process.env.REDIS_PORT },
   },
 })
