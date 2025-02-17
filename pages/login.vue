@@ -25,13 +25,27 @@
             class="block text-sm font-medium text-gray-600 mb-2"
             >Password</label
           >
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            placeholder="Enter your password"
-            class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"
-          />
+          <div class="relative">
+            <input
+              id="password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="Enter your password"
+              class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 pr-20"
+            />
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+              <span class="border-l border-gray-300 h-6 mx-2"></span>
+              <input
+                id="show-password"
+                v-model="showPassword"
+                type="checkbox"
+                class="mr-2 cursor-pointer"
+              />
+              <label for="show-password" class="text-sm text-gray-600"
+                >Show</label
+              >
+            </div>
+          </div>
         </div>
 
         <button
@@ -48,6 +62,7 @@
 <script lang="ts" setup>
 const username = ref('')
 const password = ref('')
+const showPassword = ref(false)
 const router = useRouter()
 
 async function handleLogin() {
@@ -56,16 +71,19 @@ async function handleLogin() {
     return
   }
 
-  if (username.value === 'admin' && password.value === 'password') {
-    const data = await $fetch('/api/auth')
-    if (data?.success) {
-      console.log('Login successful!')
-      router.push('/')
-    } else {
-      console.log('Login failed!')
-    }
+  const data = await $fetch('/api/auth', {
+    method: 'POST',
+    body: {
+      username: username.value,
+      password: password.value,
+    },
+  })
+
+  if (data?.success) {
+    console.log('Login successful!')
+    router.push('/')
   } else {
-    alert('Invalid username or password!')
+    console.log('Login failed!')
   }
 }
 </script>
