@@ -6,5 +6,8 @@ export const useUserStore = defineStore('user', {
     setUserId(id: string) {
       this.userId = id
     },
+    removeUserId() {
+      this.userId = null
+    },
   },
 })
