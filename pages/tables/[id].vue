@@ -22,6 +22,7 @@
 import DynamicTable from '~/components/DynamicTable.vue'
 import { getCourses } from '~/scripts/backend/courseOperations'
 import type { Course } from '~/scripts/backend/types/Course'
+import type { Schedule } from '~/scripts/backend/types/Schedule'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -31,7 +32,7 @@ const route = useRoute()
 const config = useRuntimeConfig()
 const id = computed(() => route.params.id as string)
 
-const { data: schedule, error } = await useFetch(
+const { data: schedule, error } = await useFetch<Schedule>(
   `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/${id.value}`,
 )
 const courses = ref<Course[] | null>(null)
