@@ -116,6 +116,7 @@
       :column="modalColumn"
       :cell="rows[modalRow]?.[modalColumn]"
       :initial-cell-name="cellName"
+      :course="coursesList.get(`${modalRow}-${modalColumn}`)"
       @save-cell-content="updateCellContent"
       @delete-cell-content="deleteCellContent"
       @delete-cell="deleteCell"
@@ -172,6 +173,7 @@ import {
   deleteCell,
   deleteCellContent,
   updateCellContent,
+  coursesList,
 } from '~/scripts/cellOperations'
 import type { Course } from '~/scripts/backend/types/Course'
 
