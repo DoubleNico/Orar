@@ -9,6 +9,10 @@
   >
     <p class="mb-2">Row: {{ row + 1 }}</p>
     <p class="mb-2">Column: {{ column + 1 }}</p>
+    <p class="mb-2">Cell: {{ cell }}</p>
+    <p v-if="course != null" class="mb-2">Creator: {{ course.creator.name }}</p>
+    <p v-if="course != null" class="mb-2">Created at: {{ course.createdAt }}</p>
+    <p v-if="course != null" class="mb-2">Title: {{ course.title }}</p>
 
     <div>
       <label for="cell-content" class="block text-sm font-medium">
@@ -72,6 +76,7 @@
 import type { RuntimeConfig } from 'nuxt/schema'
 import { ref, watch } from 'vue'
 import ModalBase from './ModalBase.vue'
+import type { Course } from '~/scripts/backend/types/Course'
 
 const props = defineProps({
   row: {
@@ -97,6 +102,10 @@ const props = defineProps({
   scheduleId: {
     type: String,
     required: true,
+  },
+  course: {
+    type: Object as () => Course,
+    default: null,
   },
   config: {
     type: Object as () => RuntimeConfig,
