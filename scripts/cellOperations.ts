@@ -420,6 +420,7 @@ export {
   fontColor,
   filteredRows,
   cellAlignments,
+  coursesList,
   createCourses,
   createRows,
   addColumn,
