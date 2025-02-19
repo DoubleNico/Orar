@@ -145,37 +145,38 @@
 import { v4 as uuidv4 } from 'uuid'
 import CellInformationModal from './modal/CellInformationModal.vue'
 import SettingsModal from './modal/SettingsModal.vue'
+import type { Course } from '~/scripts/backend/types/Course'
+import { addRow, createRows, removeRow } from '~/scripts/table/rowOperations'
+import { createCourses } from '~/scripts/table/coursesOperations'
 import {
-  rows,
-  isModalOpen,
-  isSettingsModalOpen,
+  cellAlignment,
+  cellAlignments,
+  cellName,
+  coursesList,
+  filteredRows,
+  fontColor,
+  fontSize,
   modalColumn,
   modalRow,
-  cellName,
+  rows,
   selectedColor,
-  cellAlignment,
-  createCourses,
   wrapText,
-  fontSize,
-  fontColor,
-  filteredRows,
-  cellAlignments,
-  addColumn,
-  addRow,
-  addCell,
-  openSettings,
+} from '~/scripts/table/state'
+import {
   closeSettingsModal,
-  saveSettings,
-  removeRow,
-  removeColumn,
-  openModal,
-  createRows,
+  isModalOpen,
+  isSettingsModalOpen,
+  openSettings,
+} from '~/scripts/table/modal/modalState'
+import { addColumn, removeColumn } from '~/scripts/table/columnOperations'
+import { openModal } from '~/scripts/table/modal/modalOperations'
+import {
+  addCell,
   deleteCell,
   deleteCellContent,
   updateCellContent,
-  coursesList,
-} from '~/scripts/cellOperations'
-import type { Course } from '~/scripts/backend/types/Course'
+} from '~/scripts/table/cellOperations'
+import { saveSettings } from '~/scripts/table/settingsOperations'
 
 const props = defineProps<{
   modelValue: boolean
