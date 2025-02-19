@@ -70,7 +70,7 @@ import RadioInputComponent from '../input/RadioInputComponent.vue'
 import OptionInputComponent from '../input/OptionInputComponent.vue'
 import FontInputComponent from '../input/FontInputComponent.vue'
 import ModalBase from './ModalBase.vue'
-import type { CellSettings } from '~/scripts/cellSettings'
+import type { CellSettings } from '~/scripts/table/types/CellSettings'
 import ColorInputComponent from '~/components/input/ColorInputComponent.vue'
 
 const props = defineProps<{
