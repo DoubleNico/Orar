@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { RuntimeConfig } from 'nuxt/schema'
 import type { Course } from './types/Course'
-import type { CellSettings } from '~/scripts/cellSettings'
+import type { CellSettings } from '~/scripts/table/types/CellSettings'
 
 export async function saveCourseToDatabase(
   scheduleId: string,
@@ -58,7 +58,7 @@ export async function saveSettingsToDatabase(
   scheduleId: string,
   config: RuntimeConfig,
 ): Promise<string> {
-  const response = await $fetch(
+  const response = await $fetch<{ id: string }>(
     `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/${scheduleId}/course_settings`,
     {
       method: 'POST',
@@ -73,6 +73,7 @@ export async function saveSettingsToDatabase(
   ).catch((error) => {
     throw new Error('Failed to save settings:' + error.data)
   })
+
   return response.id
 }
 
