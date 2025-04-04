@@ -8,15 +8,26 @@
           <label
             for="username"
             class="block text-sm font-medium text-gray-600 mb-2"
-            >Username</label
+            >Username or Email</label
           >
           <input
             id="username"
             v-model="username"
             type="text"
-            placeholder="Enter your username"
-            class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"
+            placeholder="Enter your username or email"
+            class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            :class="
+              usernameTouched && username.length <= 3 ? 'border-red-500' : ''
+            "
+            @blur="usernameTouched = true"
           />
+          <div
+            v-if="usernameTouched && username.length <= 3"
+            v-motion-pop
+            class="text-red-500 text-sm mt-1"
+          >
+            Username must be longer than 3 characters!
+          </div>
         </div>
 
         <div class="mb-6">
@@ -31,30 +42,63 @@
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
               placeholder="Enter your password"
-              class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 pr-20"
+              class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 pr-20"
+              :class="
+                passwordTouched && password.length <= 4 ? 'border-red-500' : ''
+              "
+              @blur="passwordTouched = true"
             />
             <div class="absolute inset-y-0 right-0 flex items-center pr-3">
               <span class="border-l border-gray-300 h-6 mx-2"></span>
-              <input
-                id="show-password"
-                v-model="showPassword"
-                type="checkbox"
-                class="mr-2 cursor-pointer"
+              <Icon
+                v-if="showPassword"
+                v-motion-fade
+                class="cursor-pointer bg-black"
+                name="mdi:eye-off"
+                @click="showPassword = !showPassword"
               />
-              <label for="show-password" class="text-sm text-gray-600"
-                >Show</label
-              >
+              <Icon
+                v-else
+                v-motion-fade
+                class="cursor-pointer bg-black"
+                name="mdi:eye"
+                @click="showPassword = !showPassword"
+              />
             </div>
+          </div>
+          <div
+            v-if="passwordTouched && password.length <= 4"
+            v-motion-pop
+            class="text-red-500 text-sm mt-1"
+          >
+            Password must be longer than 4 characters!
+          </div>
+          <div
+            v-if="errorMessage"
+            v-motion-pop
+            class="mt-1 mb-2 text-red-500 text-center"
+          >
+            {{ errorMessage }}
           </div>
         </div>
 
         <button
           type="submit"
-          class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition"
+          class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
         >
           Login
         </button>
       </form>
+      <div>
+        <p class="text-center text-gray-600 mt-4">
+          Don't have an account?
+          <nuxt-link
+            to="/register"
+            class="text-blue-500 hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >Register</nuxt-link
+          >
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -62,12 +106,19 @@
 <script lang="ts" setup>
 const username = ref('')
 const password = ref('')
+const usernameTouched = ref(false)
+const passwordTouched = ref(false)
 const showPassword = ref(false)
 const router = useRouter()
+const errorMessage = ref('')
+
+watch([username, password], () => {
+  errorMessage.value = ''
+})
 
 async function handleLogin() {
   if (!username.value || !password.value) {
-    alert('Please fill in all fields!')
+    errorMessage.value = 'Please fill in all fields!'
     return
   }
 
@@ -80,10 +131,9 @@ async function handleLogin() {
   })
 
   if (data?.success) {
-    console.log('Login successful!')
     router.push('/')
   } else {
-    console.log('Login failed!')
+    errorMessage.value = data?.message || 'Login failed!'
   }
 }
 </script>
