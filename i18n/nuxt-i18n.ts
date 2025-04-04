@@ -1,5 +1,5 @@
-import en from './locales/en-US.json'
-import ro from './locales/ro-RO.json'
+import en from '../locales/en-US.json'
+import ro from '../locales/ro-RO.json'
 
 export default defineI18nConfig(() => {
   return {
