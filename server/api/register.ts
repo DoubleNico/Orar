@@ -1,7 +1,11 @@
 import { z } from 'zod'
 import { AuthInit } from '~/scripts/auth/authInit'
 import { NuxtResponseAdapter } from '~/scripts/auth/responses/NuxtResponseAdapter'
-import { createUser } from '~/scripts/backend/usersOperations'
+import {
+  createUser,
+  getUserByEmail,
+  getUserByName,
+} from '~/scripts/backend/usersOperations'
 
 const userSchema = z.object({
   username: z.string(),
@@ -16,6 +20,15 @@ export default defineEventHandler(async (event) => {
   )
   if (!result.success) throw result.error.issues
   const user = result.data
+  const existingUser = await getUserByName(config, user.username)
+  if (existingUser) {
+    return { success: false, message: 'User already exists' }
+  }
+  const existingEmail = await getUserByEmail(config, user.email)
+  if (existingEmail) {
+    return { success: false, message: 'Email already exists' }
+  }
+
   const userId = await createUser(
     config,
     user.username,
