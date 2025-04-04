@@ -2,19 +2,20 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
-    [
-      '@nuxtjs/color-mode',
-      {
-        fallback: 'light', // fallback value if not system preference found
-      },
-    ],
+    '@nuxtjs/color-mode',
     '@nuxtjs/i18n',
     '@pinia/nuxt',
+    '@nuxt/icon',
+    '@vueuse/motion/nuxt',
   ],
 
   css: ['~/assets/css/tailwind.css'],
 
   typescript: { shim: false },
+
+  colorMode: {
+    fallback: 'light',
+  },
 
   i18n: {
     vueI18n: './nuxt-i18n.ts',
@@ -29,6 +30,9 @@ export default defineNuxtConfig({
       redirectOn: 'root',
     },
     defaultLocale: 'en',
+    bundle: {
+      optimizeTranslationDirective: false,
+    },
   },
 
   app: {
