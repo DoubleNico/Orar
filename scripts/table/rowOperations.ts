@@ -1,10 +1,7 @@
 import type { RuntimeConfig } from 'nuxt/schema'
 import { addRowsToDatabase } from '../backend/rowsOperations'
-import {
-  removeCourse,
-  removeSettings,
-  updateCourseRow,
-} from '../backend/courseOperations'
+import { saveTableState } from '../backend/tableOperations'
+import { removeCourses, removeSettings } from '../backend/courseOperations'
 import {
   cellAlignments,
   columnsCount,
@@ -17,21 +14,19 @@ import {
 import { validateTable } from './tableOperations'
 
 export async function addRow(scheduleId: string, config: RuntimeConfig) {
-  await addRowsToDatabase(scheduleId, rowsCount.value + 1, config).finally(
-    () => {
-      if (rows.length > 0) {
-        rows[rows.length - 1][0] = '1'
-      }
+  await addRowsToDatabase(scheduleId, rowsCount.value + 1, config)
 
-      const numberOfColumns = rows[0].length
-      const newRow = new Array(numberOfColumns).fill('1')
-      newRow[0] = '+'
-      newRow[numberOfColumns - 1] = '0'
-      rows.push(newRow)
-      rowsCount.value++
-      validateTable()
-    },
-  )
+  if (rows.length > 0) {
+    rows[rows.length - 1][0] = '1'
+  }
+
+  const numberOfColumns = rows[0].length
+  const newRow = new Array(numberOfColumns).fill('1')
+  newRow[0] = '+'
+  newRow[numberOfColumns - 1] = '0'
+  rows.push(newRow)
+  rowsCount.value++
+  validateTable()
 }
 
 export async function removeRow(
@@ -41,66 +36,88 @@ export async function removeRow(
 ) {
   if (rows.length <= 2) return
 
+  const coursesToRemove: string[] = []
+  const settingsToRemove: string[] = []
+
   for (const [key, course] of coursesList.entries()) {
-    const [rIndex] = key.split('-').map(Number)
+    const [rIndexStr] = key.split('-')
+    const rIndex = parseInt(rIndexStr)
     if (rIndex === rowIndex) {
-      await removeCourse(scheduleId, course.id, config).finally(() => {
-        coursesList.delete(key)
-      })
+      coursesToRemove.push(course.id)
     }
   }
 
   for (const [key, settings] of cellAlignments.entries()) {
-    const [rIndex] = key.split('-').map(Number)
+    const [rIndexStr] = key.split('-')
+    const rIndex = parseInt(rIndexStr)
     if (rIndex === rowIndex) {
-      await removeSettings(scheduleId, settings.id, config).finally(() => {
-        cellAlignments.delete(key)
-      })
+      settingsToRemove.push(settings.id)
     }
   }
 
+  await Promise.all([
+    removeCourses(scheduleId, coursesToRemove, config),
+    removeSettings(scheduleId, settingsToRemove, config),
+  ])
+
+  for (const key of Array.from(coursesList.keys())) {
+    const [rIndexStr] = key.split('-')
+    const rIndex = parseInt(rIndexStr)
+    if (rIndex === rowIndex) {
+      coursesList.delete(key)
+    }
+  }
+
+  for (const key of Array.from(cellAlignments.keys())) {
+    const [rIndexStr] = key.split('-')
+    const rIndex = parseInt(rIndexStr)
+    if (rIndex === rowIndex) {
+      cellAlignments.delete(key)
+    }
+  }
+
+  newCoursesList.clear()
   for (const [key, course] of coursesList.entries()) {
-    const [rIndex, cIndex] = key.split('-').map(Number)
-    if (rIndex > rowIndex) {
-      // Adjust key to move course up
-      await updateCourseRow(scheduleId, course.id, rIndex - 1, config).finally(
-        () => {
-          const newKey = `${rIndex - 1}-${cIndex}`
-          newCoursesList.set(newKey, course)
-        },
-      )
-    } else {
-      newCoursesList.set(key, course)
+    const [rIndexStr, cIndexStr] = key.split('-')
+    const rIndex = parseInt(rIndexStr)
+    const cIndex = parseInt(cIndexStr)
+    const newKey = rIndex > rowIndex ? `${rIndex - 1}-${cIndex}` : key
+
+    const originalSettings = cellAlignments.get(key)
+    if (originalSettings) {
+      newCellAlignments.set(newKey, originalSettings)
+      course.settings = originalSettings
     }
+
+    newCoursesList.set(newKey, course)
   }
 
-  cellAlignments.forEach((settings, key) => {
-    const [rIndex, cIndex] = key.split('-').map(Number)
-    if (rIndex > rowIndex) {
-      // Adjust key to move setting up
-      const newKey = `${rIndex - 1}-${cIndex}`
-      newCellAlignments.set(newKey, settings)
-    } else {
-      newCellAlignments.set(key, settings)
-    }
-  })
+  newCellAlignments.clear()
+  for (const [key, settings] of cellAlignments.entries()) {
+    const [rIndexStr, cIndexStr] = key.split('-')
+    const rIndex = parseInt(rIndexStr)
+    const cIndex = parseInt(cIndexStr)
+    const newKey = rIndex > rowIndex ? `${rIndex - 1}-${cIndex}` : key
+    newCellAlignments.set(newKey, settings)
+  }
+
+  coursesList.clear()
+  newCoursesList.forEach((val, key) => coursesList.set(key, val))
+
+  cellAlignments.clear()
+  newCellAlignments.forEach((val, key) => cellAlignments.set(key, val))
+
+  console.log('Courses list:', coursesList)
+  console.log('Cell alignments:', cellAlignments)
 
   rows.splice(rowIndex, 1)
-  coursesList.clear()
-  cellAlignments.clear()
-  newCoursesList.forEach((course, key) => coursesList.set(key, course))
-  newCellAlignments.forEach((settings, key) =>
-    cellAlignments.set(key, settings),
-  )
-
-  await addRowsToDatabase(scheduleId, rowsCount.value--, config).finally(() => {
-    rowsCount.value--
-    validateTable()
-  })
+  rowsCount.value--
+  validateTable()
+  await saveTableState(scheduleId, config)
 }
 
 export function createRows(initialRows: number, initialColumns: number) {
-  if (initialRows < 2 && initialColumns < 2) {
+  if (initialRows < 1 && initialColumns < 1) {
     rows.length = 0
     rows.push(['1', '+'])
     rows.push(['+', '0'])

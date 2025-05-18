@@ -11,13 +11,13 @@ export const modalRow = ref(0)
 export const columnsCount = ref(0)
 export const rowsCount = ref(1)
 export const cellName = ref('')
-export const selectedColor = ref('#000000')
+export const selectedColor = ref('')
 export const cellAlignment = ref<'center' | 'left' | 'right'>('center')
 export const wrapText = ref<
   'pre' | 'normal' | 'nowrap' | 'pre-wrap' | 'pre-line' | 'break-spaces'
 >('pre')
 export const fontSize = ref(16)
-export const fontColor = ref('#000000')
+export const fontColor = ref('')
 
 export const cellAlignments = reactive(new Map<string, CellSettings>())
 export const coursesList = reactive(new Map<string, Course>())

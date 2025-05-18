@@ -112,9 +112,6 @@ export async function removeCourse(
   courseId: string,
   config: RuntimeConfig,
 ) {
-  if (!courseId) {
-    return
-  }
   await $fetch(
     `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/${scheduleId}/deleteCourse/${courseId}`,
     {
@@ -125,21 +122,41 @@ export async function removeCourse(
   })
 }
 
-export async function removeSettings(
+export async function removeCourses(
   scheduleId: string,
-  settingsId: string,
+  courseIds: string[],
   config: RuntimeConfig,
 ) {
-  if (!settingsId) {
+  if (!courseIds || courseIds.length === 0) {
     return
   }
   await $fetch(
-    `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/${scheduleId}/deleteSettings/${settingsId}`,
+    `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/${scheduleId}/deleteCourses`,
     {
       method: 'DELETE',
+      body: { courseIds },
     },
   ).catch((error) => {
-    throw new Error('Failed to remove settings:' + error.data)
+    throw new Error('Failed to remove courses: ' + error.data)
+  })
+}
+
+export async function removeSettings(
+  scheduleId: string,
+  settingsIds: string[],
+  config: RuntimeConfig,
+) {
+  if (!settingsIds || settingsIds.length === 0) {
+    return
+  }
+  await $fetch(
+    `${config.public.backend}/${config.public.api_link}/${config.public.schedule_link}/${scheduleId}/deleteSettings`,
+    {
+      method: 'DELETE',
+      body: { settingsIds },
+    },
+  ).catch((error) => {
+    throw new Error('Failed to remove settings: ' + error.data)
   })
 }
 

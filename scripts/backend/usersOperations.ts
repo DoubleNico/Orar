@@ -33,6 +33,36 @@ export async function getUser(
   }
 }
 
+export async function getUserByName(
+  config: RuntimeConfig,
+  name: string,
+): Promise<User | null> {
+  try {
+    const response = await $fetch<User>(
+      `${config.public.backend}/${config.public.api_link}/user/getByName`,
+      { method: 'GET', params: { name } },
+    )
+    return response
+  } catch (error) {
+    return null
+  }
+}
+
+export async function getUserByEmail(
+  config: RuntimeConfig,
+  email: string,
+): Promise<User | null> {
+  try {
+    const response = await $fetch<User>(
+      `${config.public.backend}/${config.public.api_link}/user/getByEmail`,
+      { method: 'GET', params: { email } },
+    )
+    return response
+  } catch (error) {
+    return null
+  }
+}
+
 export async function checkPassword(
   config: RuntimeConfig,
   username: string,
