@@ -18,14 +18,13 @@ export async function saveSettings(
   scheduleId: string,
   config: RuntimeConfig,
 ) {
-  await saveSettingsToDatabase(settings, scheduleId, config).finally(() => {
-    cellAlignments.set(`${modalRow.value}-${modalColumn.value}`, settings)
-    selectedColor.value = settings.color
-    cellAlignment.value = settings.alignment
-    wrapText.value = settings.wrapText
-    fontSize.value = settings.fontSize
-    fontColor.value = settings.fontColor
-    isSettingsModalOpen.value = false
-    isModalOpen.value = true
-  })
+  await saveSettingsToDatabase(settings, scheduleId, config)
+  cellAlignments.set(`${modalRow.value}-${modalColumn.value}`, settings)
+  selectedColor.value = settings.color
+  cellAlignment.value = settings.alignment
+  wrapText.value = settings.wrapText
+  fontSize.value = settings.fontSize
+  fontColor.value = settings.fontColor
+  isSettingsModalOpen.value = false
+  isModalOpen.value = true
 }

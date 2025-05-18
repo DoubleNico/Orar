@@ -4,6 +4,7 @@
   >
     <br />
     <input
+      v-if="selectedBackgroundColor !== ''"
       id="cellcolor"
       ref="cellColor"
       v-model="selectedBackgroundColor"
@@ -19,7 +20,7 @@
       }"
     />
     <button
-      v-if="selectedBackgroundColor === ''"
+      v-else
       class="settings-ring-color w-[90%] h-7 rounded-lg border settings-section-border-color focus:outline-none focus:ring-2"
       title="Click to set the background color"
       @click="setBackgroundColor"
@@ -52,6 +53,7 @@ const cellColor = useTemplateRef('cellColor')
 function clearBackgroundColor() {
   selectedBackgroundColor.value = ''
 }
+
 function setBackgroundColor() {
   selectedBackgroundColor.value = '#000000'
   nextTick(() => {

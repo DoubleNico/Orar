@@ -28,17 +28,17 @@ export function openModal(rowIndex: number, colIndex: number) {
 
   if (cellAlignments.has(key)) {
     const settings = cellAlignments.get(key)
-    selectedColor.value = settings?.color ?? '#000000'
+    selectedColor.value = settings?.color ?? ''
     cellAlignment.value = settings?.alignment ?? 'center'
     wrapText.value = settings?.wrapText ?? 'pre'
     fontSize.value = settings?.fontSize ?? 16
-    fontColor.value = settings?.fontColor ?? '#000000'
+    fontColor.value = settings?.fontColor ?? ''
   } else {
-    selectedColor.value = '#000000'
+    selectedColor.value = ''
     cellAlignment.value = 'center'
     wrapText.value = 'pre'
     fontSize.value = 16
-    fontColor.value = '#000000'
+    fontColor.value = ''
   }
 
   isModalOpen.value = true
