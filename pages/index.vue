@@ -1,17 +1,19 @@
 <template>
   <div>
     <h1>Color mode: {{ colorModeText }}</h1>
-    <button @click="changeMode">{{ colorModeText }}</button>
+    <button :tabindex="showModal ? -1 : 0" @click="changeMode">
+      {{ colorModeText }}
+    </button>
     <a
       v-for="lang in availableLocales"
       :key="lang.code"
+      :tabindex="showModal ? -1 : 0"
       href="#"
       @click.prevent.stop="setLocale(lang.code)"
       >{{ lang.name }}</a
     >
     <p>{{ $t('hello') }}</p>
-    <ScheduleList />
-    <StructureButton />
+    <ScheduleList v-model="showModal" />
     <LoginButton />
   </div>
 </template>
@@ -26,6 +28,7 @@ const availableLocales = computed(() => {
 })
 
 const colorMode = useColorMode()
+const showModal = ref(false)
 const colorModeText = ref('')
 
 const updateColorModeText = () => {

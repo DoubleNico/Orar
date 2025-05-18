@@ -3,4 +3,5 @@ export interface Schedule {
   name: string
   rows: number
   columns: number
+  createdAt: string
 }
